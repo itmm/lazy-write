@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Only write into a file if it is changing</title>
+<link rel="stylesheet" type="text/css" href="slides/slides.css"></head>
+<body>
+<h1>Only write into a file if it is changing</h1>
+<div class="slides">
+<div>
+<div>
+<h1>Only write into a file if it is changing</h1>
+</div>
+<ul><li>
+improves working with <code><span class="var">make</span></code>
+</li></ul>
+</div>
+<div><div>
+<code>
+<span class="macro">@Def(<span class="name">file: lazy-write.h</span>)</span><br/>
+<span class="in1"></span><span class="keyword">#pragma</span> <span class="keyword">once</span><br/>
+<span class="in1"></span><span class="macro">@put(<span class="name">globals</span>)</span><br/>
+<span class="macro">@End(<span class="name">file: lazy-write.h</span>)</span><br/>
+</code></div>
+</div>
+<div><div>
+<code>
+<span class="macro">@Def(<span class="name">file: lazy-write.cpp</span>)</span><br/>
+<span class="in1"></span><span class="keyword">#define</span> <span class="var">lw_IMPL</span><br/>
+<span class="in1"></span><span class="keyword">#include</span> <span class="str">"lazy-write.h"</span><br/>
+<span class="macro">@End(<span class="name">file: lazy-write.cpp</span>)</span><br/>
+</code></div>
+</div>
+<div><div>
+<code>
+<span class="macro">@def(<span class="name">globals</span>)</span><br/>
+<span class="in1"></span><span class="macro">@put(<span class="name">Lazy_Write prereqs</span>)</span>;<br/>
+<span class="in1"></span><span class="keyword">class</span> <span class="type">Lazy_Write</span> {<br/>
+<span class="in3"></span><span class="macro">@put(<span class="name">privates</span>)</span>;<br/>
+<span class="in2"></span><span class="keyword">public</span>:<br/>
+<span class="in3"></span><span class="macro">@put(<span class="name">publics</span>)</span>;<br/>
+<span class="in1"></span>};<br/>
+<span class="macro">@end(<span class="name">globals</span>)</span><br/>
+</code></div>
+</div>
+<div><div>
+<code>
+<span class="macro">@def(<span class="name">privates</span>)</span><br/>
+<span class="macro">@end(<span class="name">privates</span>)</span><br/>
+</code></div>
+</div>
+<div><div>
+<code>
+<span class="macro">@def(<span class="name">publics</span>)</span><br/>
+<span class="macro">@end(<span class="name">publics</span>)</span><br/>
+</code></div>
+</div>
+<div><div>
+<code>
+<span class="macro">@def(<span class="name">construct @class(</span>)</span>)<br/>
+<span class="in1"></span><span class="macro">@add(<span class="name">privates</span>)</span><br/>
+<span class="in2"></span><span class="type">const</span> <span class="type">std</span>::<span class="type">string</span> <span class="var">_path</span>;<br/>
+<span class="in1"></span><span class="macro">@end(<span class="name">privates</span>)</span><br/>
+<span class="in1"></span><span class="macro">@add(<span class="name">publics</span>)</span><br/>
+<span class="in2"></span><span class="fn">Lazy_Write</span>(<span class="type">const</span> <span class="type">std</span>::<span class="type">string</span> &amp;<span class="var">p</span>):<br/>
+<span class="in3"></span><span class="var">_path</span> { <span class="var">p</span> }<br/>
+<span class="in2"></span>{<br/>
+<span class="in3"></span><span class="macro">@put(<span class="name">construct</span>)</span>;<br/>
+<span class="in2"></span>}<br/>
+<span class="in1"></span><span class="macro">@end(<span class="name">publics</span>)</span><br/>
+<span class="macro">@end(<span class="name">construct @class(</span>)</span>)<br/>
+</code></div>
+</div>
+<div><div>
+<code>
+<span class="macro">@put(<span class="name">construct @class(Lazy_Write</span>)</span>)<br/>
+</code></div>
+</div>
+<div><div>
+<code>
+<span class="macro">@Def(<span class="name">file: main.cpp</span>)</span><br/>
+<span class="in1"></span><span class="keyword">#include</span> <span class="str">"lazy-write.h"</span><br/>
+<span class="in1"></span><span class="keyword">#include</span> &lt;<span class="var">cassert</span>&gt;<br/>
+<span class="in1"></span><span class="type">int</span> <span class="fn">main</span>() {<br/>
+<span class="in2"></span><span class="macro">@put(<span class="name">unit-tests</span>)</span>;<br/>
+<span class="in1"></span>}<br/>
+<span class="macro">@End(<span class="name">file: main.cpp</span>)</span><br/>
+</code></div>
+</div>
+<div><div>
+<code>
+<span class="macro">@def(<span class="name">unit-tests</span>)</span> {<br/>
+<span class="in1"></span><span class="type">Lazy_Write</span> <span class="var">lw</span> { <span class="str">"a.tmp"</span> };<br/>
+} <span class="macro">@end(<span class="name">unit-tests</span>)</span><br/>
+</code></div>
+</div>
+<div><div>
+<code>
+<span class="macro">@def(<span class="name">Lazy_Write prereqs</span>)</span><br/>
+<span class="in1"></span><span class="keyword">#include</span> &lt;<span class="var">memory</span>&gt;<br/>
+<span class="in1"></span><span class="keyword">#include</span> &lt;<span class="var">fstream</span>&gt;<br/>
+<span class="macro">@end(<span class="name">Lazy_Write prereqs</span>)</span><br/>
+</code></div>
+</div>
+<div><div>
+<code>
+<span class="macro">@add(<span class="name">privates</span>)</span><br/>
+<span class="in1"></span><span class="type">std</span>::<span class="var">unique_ptr</span>&lt;<span class="type">std</span>::<span class="type">ifstream</span>&gt;<br/>
+<span class="in2"></span><span class="var">_reader</span>;<br/>
+<span class="in1"></span><span class="type">std</span>::<span class="var">unique_ptr</span>&lt;<span class="type">std</span>::<span class="type">ofstream</span>&gt;<br/>
+<span class="in2"></span><span class="var">_writer</span>;<br/>
+<span class="macro">@end(<span class="name">privates</span>)</span><br/>
+</code></div>
+</div>
+</body>
+</html>
