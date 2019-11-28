@@ -8,6 +8,7 @@ OBJs = $(CXXs:.cpp=.o)
 hx_run: $(MDs)
 	@echo "HX"
 	@hx
+	@date >hx_run
 	@make --no-print-directory test
 
 test: lazy-write
@@ -16,13 +17,19 @@ test: lazy-write
 
 clean:
 	@echo "RM"
-	@rm -f lazy-write $(OBJs) $(GENs)
+	@rm -f hx_run lazy-write $(OBJs) $(GENs)
 
 CXXFLAGS += -Wall -std=c++17
 
 lazy-write: $(OBJs)
 	@echo "LD $@"
-	@$(CXX) $(CXXFLAGS) $^ -o $@
+	@$(CXX) $(CXXFLAGS) $^ -lstdc++fs -o $@
+
+lazy-write.cpp: lazy-write.h
+	@touch $@
+
+main.cpp: lazy-write.h
+	@touch $@
 
 %.o: %.cpp
 	@echo "  C++ $@"

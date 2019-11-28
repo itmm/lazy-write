@@ -81,6 +81,7 @@ improves working with <code><span class="var">make</span></code>
 <span class="macro">@Def(<span class="name">file: main.cpp</span>)</span><br/>
 <span class="in1"></span><span class="keyword">#include</span> <span class="str">"lazy-write.h"</span><br/>
 <span class="in1"></span><span class="keyword">#include</span> &lt;<span class="var">cassert</span>&gt;<br/>
+<span class="in1"></span><span class="macro">@put(<span class="name">main prereqs</span>)</span>;<br/>
 <span class="in1"></span><span class="type">int</span> <span class="fn">main</span>() {<br/>
 <span class="in2"></span><span class="macro">@put(<span class="name">unit-tests</span>)</span>;<br/>
 <span class="in1"></span>}<br/>
@@ -89,17 +90,67 @@ improves working with <code><span class="var">make</span></code>
 </div>
 <div><div>
 <code>
-<span class="macro">@def(<span class="name">unit-tests</span>)</span> {<br/>
-<span class="in1"></span><span class="type">Lazy_Write</span> <span class="var">lw</span> { <span class="str">"a.tmp"</span> };<br/>
-} <span class="macro">@end(<span class="name">unit-tests</span>)</span><br/>
+<span class="macro">@def(<span class="name">Lazy_Write prereqs</span>)</span><br/>
+<span class="in1"></span><span class="keyword">#include</span> &lt;<span class="var">memory</span>&gt;<br/>
+<span class="in1"></span><span class="keyword">#include</span> &lt;<span class="var">fstream</span>&gt;<br/>
+<span class="in1"></span><span class="keyword">#include</span> &lt;<span class="var">filesystem</span>&gt;<br/>
+<span class="in1"></span><span class="keyword">#include</span> &lt;<span class="var">streambuf</span>&gt;<br/>
+<span class="in1"></span><span class="keyword">namespace</span> <span class="var">fs</span> = <span class="type">std</span>::<span class="var">filesystem</span>;<br/>
+<span class="macro">@end(<span class="name">Lazy_Write prereqs</span>)</span><br/>
 </code></div>
 </div>
 <div><div>
 <code>
-<span class="macro">@def(<span class="name">Lazy_Write prereqs</span>)</span><br/>
-<span class="in1"></span><span class="keyword">#include</span> &lt;<span class="var">memory</span>&gt;<br/>
-<span class="in1"></span><span class="keyword">#include</span> &lt;<span class="var">fstream</span>&gt;<br/>
-<span class="macro">@end(<span class="name">Lazy_Write prereqs</span>)</span><br/>
+<span class="macro">@def(<span class="name">main prereqs</span>)</span><br/>
+<span class="in1"></span><span class="macro">@put(<span class="name">unit-tests prereqs</span>)</span>;<br/>
+<span class="macro">@end(<span class="name">main prereqs</span>)</span><br/>
+</code></div>
+</div>
+<div><div>
+<code>
+<span class="macro">@add(<span class="name">publics</span>)</span><br/>
+<span class="in1"></span><span class="type">Lazy_Write</span> &amp;<span class="var">operator</span>&lt;&lt;(<br/>
+<span class="in2"></span><span class="type">const</span> <span class="type">std</span>::<span class="type">string</span> &amp;<span class="var">s</span><br/>
+<span class="in1"></span>) {<br/>
+<span class="in2"></span><span class="keyword">for</span> (<span class="type">const</span> <span class="type">char</span> <span class="var">c</span> : <span class="var">s</span>) {<br/>
+<span class="in3"></span><span class="fn">put</span>(<span class="var">c</span>);<br/>
+<span class="in2"></span>}<br/>
+<span class="in2"></span><span class="keyword">return</span> *<span class="var">this</span>;<br/>
+<span class="in1"></span>}<br/>
+<span class="macro">@end(<span class="name">publics</span>)</span><br/>
+</code></div>
+</div>
+<div><div>
+<code>
+<span class="macro">@def(<span class="name">unit-tests prereqs</span>)</span><br/>
+<span class="in1"></span><span class="type">void</span> <span class="fn">lazy_write</span>(<br/>
+<span class="in2"></span><span class="var">fs</span>::<span class="var">path</span> <span class="var">path</span>,<br/>
+<span class="in2"></span><span class="type">const</span> <span class="type">std</span>::<span class="type">string</span> &amp;<span class="var">content</span><br/>
+<span class="in1"></span>) {<br/>
+<span class="in2"></span><span class="type">std</span>::<span class="type">string</span> <span class="var">p</span> { <span class="var">path</span>.<span class="fn">string</span>() };<br/>
+<span class="in2"></span>{<br/>
+<span class="in3"></span><span class="type">Lazy_Write</span> <span class="var">lw</span> { <span class="var">p</span> };<br/>
+<span class="in3"></span><span class="var">lw</span> &lt;&lt; <span class="var">content</span>;<br/>
+<span class="in2"></span>}<br/>
+<span class="in2"></span><span class="fn">assert</span>(<span class="var">fs</span>::<span class="fn">file_size</span>(<span class="var">path</span>) ==<br/>
+<span class="in3"></span><span class="var">content</span>.<span class="fn">size</span>());<br/>
+<span class="in2"></span><span class="type">std</span>::<span class="type">ifstream</span> <span class="keyword">in</span> { <span class="var">p</span> };<br/>
+<span class="in2"></span><span class="keyword">using</span> <span class="var">it</span> = <span class="type">std</span>::<span class="var">istreambuf_iterator</span>&lt;<span class="type">char</span>&gt;;<br/>
+<span class="in2"></span><span class="type">std</span>::<span class="type">string</span> <span class="var">got</span> {<br/>
+<span class="in3"></span><span class="var">it</span> { <span class="keyword">in</span> }, <span class="var">it</span> { }<br/>
+<span class="in2"></span>};<br/>
+<span class="in2"></span><span class="fn">assert</span>(<span class="var">got</span> == <span class="var">content</span>);<br/>
+<span class="in1"></span>}<br/>
+<span class="macro">@end(<span class="name">unit-tests prereqs</span>)</span><br/>
+</code></div>
+</div>
+<div><div>
+<code>
+<span class="macro">@def(<span class="name">unit-tests</span>)</span> {<br/>
+<span class="in1"></span><span class="var">fs</span>::<span class="var">path</span> <span class="var">p</span> { <span class="str">"a.tmp"</span> };<br/>
+<span class="in1"></span><span class="fn">lazy_write</span>(<span class="var">p</span>, <span class="str">""</span>);<br/>
+<span class="in1"></span><span class="var">fs</span>::<span class="fn">remove</span>(<span class="var">p</span>);<br/>
+} <span class="macro">@end(<span class="name">unit-tests</span>)</span><br/>
 </code></div>
 </div>
 <div><div>
@@ -107,9 +158,179 @@ improves working with <code><span class="var">make</span></code>
 <span class="macro">@add(<span class="name">privates</span>)</span><br/>
 <span class="in1"></span><span class="type">std</span>::<span class="var">unique_ptr</span>&lt;<span class="type">std</span>::<span class="type">ifstream</span>&gt;<br/>
 <span class="in2"></span><span class="var">_reader</span>;<br/>
+<span class="in1"></span><span class="type">unsigned</span> <span class="var">_count</span> { <span class="num">0</span> };<br/>
 <span class="in1"></span><span class="type">std</span>::<span class="var">unique_ptr</span>&lt;<span class="type">std</span>::<span class="type">ofstream</span>&gt;<br/>
 <span class="in2"></span><span class="var">_writer</span>;<br/>
 <span class="macro">@end(<span class="name">privates</span>)</span><br/>
+</code></div>
+</div>
+<div><div>
+<code>
+<span class="macro">@def(<span class="name">construct</span>)</span><br/>
+<span class="in1"></span><span class="var">_reader</span> = <span class="type">std</span>::<span class="fn">move</span>(<br/>
+<span class="in2"></span><span class="type">std</span>::<span class="var">make_unique</span>&lt;<span class="type">std</span>::<span class="type">ifstream</span>&gt;(<br/>
+<span class="in3"></span><span class="var">_path</span>.<span class="fn">c_str</span>(), <span class="type">std</span>::<span class="var">ios_base</span>::<span class="var">binary</span> | <span class="type">std</span>::<span class="var">ios_base</span>::<span class="keyword">in</span><br/>
+<span class="in2"></span>)<br/>
+<span class="in1"></span>);<br/>
+<span class="macro">@end(<span class="name">construct</span>)</span><br/>
+</code></div>
+</div>
+<div><div>
+<code>
+<span class="macro">@add(<span class="name">publics</span>)</span><br/>
+<span class="in1"></span><span class="type">Lazy_Write</span> &amp;<span class="fn">put</span>(<span class="type">char</span> <span class="var">c</span>) {<br/>
+<span class="in2"></span><span class="macro">@put(<span class="name">put</span>)</span>;<br/>
+<span class="in2"></span><span class="keyword">return</span> *<span class="var">this</span>;<br/>
+<span class="in1"></span>}<br/>
+<span class="macro">@end(<span class="name">publics</span>)</span><br/>
+</code></div>
+</div>
+<div><div>
+<code>
+<span class="macro">@def(<span class="name">put</span>)</span><br/>
+<span class="in1"></span><span class="type">char</span> <span class="var">got</span>;<br/>
+<span class="in1"></span><span class="keyword">if</span> (<span class="var">_reader</span> &amp;&amp; <span class="var">_reader</span>-&gt;<span class="fn">get</span>(<span class="var">got</span>)) {<br/>
+<span class="in2"></span><span class="keyword">if</span> (<span class="var">got</span> == <span class="var">c</span>) {<br/>
+<span class="in3"></span>++<span class="var">_count</span>;<br/>
+<span class="in3"></span><span class="keyword">return</span> *<span class="var">this</span>;<br/>
+<span class="in2"></span>}<br/>
+<span class="in1"></span>}<br/>
+<span class="in1"></span><span class="var">_reader</span> = <span class="num">nullptr</span>;<br/>
+<span class="macro">@end(<span class="name">put</span>)</span><br/>
+</code></div>
+</div>
+<div><div>
+<code>
+<span class="macro">@add(<span class="name">put</span>)</span><br/>
+<span class="in1"></span><span class="keyword">if</span> (! <span class="var">_writer</span>) {<br/>
+<span class="in2"></span><span class="macro">@put(<span class="name">init writer</span>)</span>;<br/>
+<span class="in1"></span>}<br/>
+<span class="macro">@end(<span class="name">put</span>)</span><br/>
+</code></div>
+</div>
+<div><div>
+<code>
+<span class="macro">@def(<span class="name">init writer</span>)</span><br/>
+<span class="in1"></span><span class="var">_writer</span> = <span class="type">std</span>::<span class="fn">move</span>(<br/>
+<span class="in2"></span><span class="type">std</span>::<span class="var">make_unique</span>&lt;<span class="type">std</span>::<span class="type">ofstream</span> &gt;(<br/>
+<span class="in3"></span><span class="var">_path</span>.<span class="fn">c_str</span>(),<br/>
+<span class="in3"></span><span class="var">_count</span> ? <span class="type">std</span>::<span class="var">ios_base</span>::<span class="var">binary</span> | <span class="type">std</span>::<span class="var">ios_base</span>::<span class="keyword">in</span> | <span class="type">std</span>::<span class="var">ios_base</span>::<span class="var">out</span> : <span class="type">std</span>::<span class="var">ios_base</span>::<span class="var">binary</span> | <span class="type">std</span>::<span class="var">ios_base</span>::<span class="var">out</span><br/>
+<span class="in2"></span>)<br/>
+<span class="in1"></span>);<br/>
+<span class="in1"></span><span class="keyword">if</span> (<span class="var">_count</span>) {<br/>
+<span class="in2"></span><span class="var">_writer</span>-&gt;<span class="fn">seekp</span>(<span class="var">_count</span>);<br/>
+<span class="in1"></span>}<br/>
+<span class="macro">@end(<span class="name">init writer</span>)</span><br/>
+</code></div>
+</div>
+<div><div>
+<code>
+<span class="macro">@add(<span class="name">put</span>)</span><br/>
+<span class="in1"></span><span class="keyword">if</span> (<span class="var">_writer</span>) {<br/>
+<span class="in2"></span><span class="var">_writer</span>-&gt;<span class="fn">put</span>(<span class="var">c</span>);<br/>
+<span class="in2"></span>++<span class="var">_count</span>;<br/>
+<span class="in1"></span>}<br/>
+<span class="macro">@end(<span class="name">put</span>)</span><br/>
+</code></div>
+</div>
+<div><div>
+<code>
+<span class="macro">@add(<span class="name">publics</span>)</span><br/>
+<span class="in1"></span>~<span class="fn">Lazy_Write</span>() {<br/>
+<span class="in2"></span><span class="macro">@put(<span class="name">destruct</span>)</span>;<br/>
+<span class="in1"></span>}<br/>
+<span class="macro">@end(<span class="name">publics</span>)</span><br/>
+</code></div>
+</div>
+<div><div>
+<code>
+<span class="macro">@def(<span class="name">destruct</span>)</span><br/>
+<span class="in1"></span><span class="var">_reader</span> = <span class="num">nullptr</span>;<br/>
+<span class="in1"></span><span class="var">_writer</span> = <span class="num">nullptr</span>;<br/>
+<span class="in1"></span><span class="var">fs</span>::<span class="var">path</span> <span class="var">p</span> { <span class="var">_path</span> };<br/>
+<span class="in1"></span><span class="type">std</span>::<span class="var">error_code</span> <span class="var">err</span>;<br/>
+<span class="in1"></span><span class="type">auto</span> <span class="var">got</span> { <span class="var">fs</span>::<span class="fn">file_size</span>(<span class="var">p</span>, <span class="var">err</span>) };<br/>
+<span class="macro">@end(<span class="name">destruct</span>)</span><br/>
+</code></div>
+</div>
+<div><div>
+<code>
+<span class="macro">@add(<span class="name">destruct</span>)</span><br/>
+<span class="in1"></span><span class="keyword">if</span> (<span class="var">err</span>) {<br/>
+<span class="in2"></span><span class="type">std</span>::<span class="type">ofstream</span> <span class="var">empty</span> {<br/>
+<span class="in3"></span><span class="var">_path</span>.<span class="fn">c_str</span>()<br/>
+<span class="in2"></span>};<br/>
+<span class="in2"></span><span class="var">got</span> = <span class="num">0</span>;<br/>
+<span class="in1"></span>}<br/>
+<span class="macro">@end(<span class="name">destruct</span>)</span><br/>
+</code></div>
+</div>
+<div><div>
+<code>
+<span class="macro">@add(<span class="name">destruct</span>)</span><br/>
+<span class="in1"></span><span class="keyword">if</span> (<span class="var">got</span> != <span class="var">_count</span>) {<br/>
+<span class="in2"></span><span class="var">fs</span>::<span class="fn">resize_file</span>(<span class="var">p</span>, <span class="var">_count</span>, <span class="var">err</span>);<br/>
+<span class="in1"></span>}<br/>
+<span class="macro">@end(<span class="name">destruct</span>)</span><br/>
+</code></div>
+</div>
+<div><div>
+<code>
+<span class="macro">@add(<span class="name">unit-tests</span>)</span> {<br/>
+<span class="in1"></span><span class="var">fs</span>::<span class="var">path</span> <span class="var">p</span> { <span class="str">"a.tmp"</span> };<br/>
+<span class="in1"></span><span class="fn">lazy_write</span>(<span class="var">p</span>, <span class="str">"abc"</span>);<br/>
+<span class="in1"></span><span class="var">fs</span>::<span class="fn">remove</span>(<span class="var">p</span>);<br/>
+} <span class="macro">@end(<span class="name">unit-tests</span>)</span><br/>
+</code></div>
+</div>
+<div><div>
+<code>
+<span class="macro">@add(<span class="name">unit-tests</span>)</span> {<br/>
+<span class="in1"></span><span class="var">fs</span>::<span class="var">path</span> <span class="var">p</span> { <span class="str">"a.tmp"</span> };<br/>
+<span class="in1"></span><span class="fn">lazy_write</span>(<span class="var">p</span>, <span class="str">"abc"</span>);<br/>
+<span class="in1"></span><span class="fn">lazy_write</span>(<span class="var">p</span>, <span class="str">""</span>);<br/>
+<span class="in1"></span><span class="var">fs</span>::<span class="fn">remove</span>(<span class="var">p</span>);<br/>
+} <span class="macro">@end(<span class="name">unit-tests</span>)</span><br/>
+</code></div>
+</div>
+<div><div>
+<code>
+<span class="macro">@add(<span class="name">unit-tests</span>)</span> {<br/>
+<span class="in1"></span><span class="var">fs</span>::<span class="var">path</span> <span class="var">p</span> { <span class="str">"a.tmp"</span> };<br/>
+<span class="in1"></span><span class="fn">lazy_write</span>(<span class="var">p</span>, <span class="str">""</span>);<br/>
+<span class="in1"></span><span class="fn">lazy_write</span>(<span class="var">p</span>, <span class="str">"abc"</span>);<br/>
+<span class="in1"></span><span class="var">fs</span>::<span class="fn">remove</span>(<span class="var">p</span>);<br/>
+} <span class="macro">@end(<span class="name">unit-tests</span>)</span><br/>
+</code></div>
+</div>
+<div><div>
+<code>
+<span class="macro">@add(<span class="name">unit-tests</span>)</span> {<br/>
+<span class="in1"></span><span class="var">fs</span>::<span class="var">path</span> <span class="var">p</span> { <span class="str">"a.tmp"</span> };<br/>
+<span class="in1"></span><span class="fn">lazy_write</span>(<span class="var">p</span>, <span class="str">"abc"</span>);<br/>
+<span class="in1"></span><span class="fn">lazy_write</span>(<span class="var">p</span>, <span class="str">"ab"</span>);<br/>
+<span class="in1"></span><span class="var">fs</span>::<span class="fn">remove</span>(<span class="var">p</span>);<br/>
+} <span class="macro">@end(<span class="name">unit-tests</span>)</span><br/>
+</code></div>
+</div>
+<div><div>
+<code>
+<span class="macro">@add(<span class="name">unit-tests</span>)</span> {<br/>
+<span class="in1"></span><span class="var">fs</span>::<span class="var">path</span> <span class="var">p</span> { <span class="str">"a.tmp"</span> };<br/>
+<span class="in1"></span><span class="fn">lazy_write</span>(<span class="var">p</span>, <span class="str">"abc"</span>);<br/>
+<span class="in1"></span><span class="fn">lazy_write</span>(<span class="var">p</span>, <span class="str">"ad"</span>);<br/>
+<span class="in1"></span><span class="var">fs</span>::<span class="fn">remove</span>(<span class="var">p</span>);<br/>
+} <span class="macro">@end(<span class="name">unit-tests</span>)</span><br/>
+</code></div>
+</div>
+<div><div>
+<code>
+<span class="macro">@add(<span class="name">unit-tests</span>)</span> {<br/>
+<span class="in1"></span><span class="var">fs</span>::<span class="var">path</span> <span class="var">p</span> { <span class="str">"a.tmp"</span> };<br/>
+<span class="in1"></span><span class="fn">lazy_write</span>(<span class="var">p</span>, <span class="str">"abc"</span>);<br/>
+<span class="in1"></span><span class="fn">lazy_write</span>(<span class="var">p</span>, <span class="str">"adef"</span>);<br/>
+<span class="in1"></span><span class="var">fs</span>::<span class="fn">remove</span>(<span class="var">p</span>);<br/>
+} <span class="macro">@end(<span class="name">unit-tests</span>)</span><br/>
 </code></div>
 </div>
 </body>
