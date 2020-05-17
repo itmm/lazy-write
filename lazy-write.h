@@ -1,12 +1,12 @@
 
-#line 5 "index.md"
+#line 5 "lazy.md"
 
 	#pragma once
 	
-#line 19 "index.md"
+#line 19 "lazy.md"
 
 	
-#line 70 "index.md"
+#line 59 "lazy.md"
 
 	#include <memory>
 	#include <fstream>
@@ -14,18 +14,18 @@
 	#include <streambuf>
 	namespace fs = std::filesystem;
 
-#line 20 "index.md"
+#line 20 "lazy.md"
 ;
 	class Lazy_Write {
 			
-#line 30 "index.md"
+#line 30 "lazy.md"
 
 
-#line 1 "index.md"
+#line 1 "lazy.md"
 
 		const std::string _path;
 	
-#line 130 "index.md"
+#line 82 "lazy.md"
 
 	std::unique_ptr<std::ifstream>
 		_reader;
@@ -33,14 +33,14 @@
 	std::unique_ptr<std::ofstream>
 		_writer;
 
-#line 22 "index.md"
+#line 22 "lazy.md"
 ;
 		public:
 			
-#line 35 "index.md"
+#line 35 "lazy.md"
 
 
-#line 1 "index.md"
+#line 1 "lazy.md"
 
 		Lazy_Write(const std::string &p):
 			_path { p }
@@ -54,7 +54,7 @@
 ;
 		}
 	
-#line 86 "index.md"
+#line 69 "lazy.md"
 
 	Lazy_Write &operator<<(
 		const std::string &s
@@ -65,11 +65,11 @@
 		return *this;
 	}
 
-#line 150 "index.md"
+#line 102 "lazy.md"
 
 	Lazy_Write &put(char c) {
 		
-#line 159 "index.md"
+#line 111 "lazy.md"
 
 	char got;
 	if (_reader && _reader->get(got)) {
@@ -80,11 +80,11 @@
 	}
 	_reader = nullptr;
 
-#line 172 "index.md"
+#line 124 "lazy.md"
 
 	if (! _writer) {
 		
-#line 180 "index.md"
+#line 132 "lazy.md"
 
 	_writer = std::move(
 		std::make_unique<std::ofstream >(
@@ -96,27 +96,27 @@
 		_writer->seekp(_count);
 	}
 
-#line 174 "index.md"
+#line 126 "lazy.md"
 ;
 	}
 
-#line 194 "index.md"
+#line 146 "lazy.md"
 
 	if (_writer) {
 		_writer->put(c);
 		++_count;
 	}
 
-#line 152 "index.md"
+#line 104 "lazy.md"
 ;
 		return *this;
 	}
 
-#line 203 "index.md"
+#line 155 "lazy.md"
 
 	~Lazy_Write() {
 		
-#line 211 "index.md"
+#line 163 "lazy.md"
 
 	_reader = nullptr;
 	_writer = nullptr;
@@ -124,7 +124,7 @@
 	std::error_code err;
 	auto got { fs::file_size(p, err) };
 
-#line 221 "index.md"
+#line 173 "lazy.md"
 
 	if (err) {
 		std::ofstream empty {
@@ -133,19 +133,19 @@
 		got = 0;
 	}
 
-#line 232 "index.md"
+#line 184 "lazy.md"
 
 	if (got != _count) {
 		fs::resize_file(p, _count, err);
 	}
 
-#line 205 "index.md"
+#line 157 "lazy.md"
 ;
 	}
 
-#line 24 "index.md"
+#line 24 "lazy.md"
 ;
 	};
 
-#line 7 "index.md"
+#line 7 "lazy.md"
 

@@ -1,13 +1,13 @@
 
-#line 59 "index.md"
+#line 9 "index.md"
 
 	#include "lazy-write.h"
 	#include <cassert>
 	
-#line 80 "index.md"
+#line 20 "index.md"
 
 	
-#line 99 "index.md"
+#line 26 "index.md"
 
 	void lazy_write(
 		fs::path path,
@@ -28,60 +28,60 @@
 		assert(got == content);
 	}
 
-#line 81 "index.md"
+#line 21 "index.md"
 ;
 
-#line 62 "index.md"
+#line 12 "index.md"
 ;
 	int main() {
 		
-#line 122 "index.md"
+#line 49 "index.md"
  {
 	fs::path p { "a.tmp" };
 	lazy_write(p, "");
 	fs::remove(p);
 } 
-#line 240 "index.md"
+#line 57 "index.md"
  {
 	fs::path p { "a.tmp" };
 	lazy_write(p, "abc");
 	fs::remove(p);
 } 
-#line 248 "index.md"
+#line 65 "index.md"
  {
 	fs::path p { "a.tmp" };
 	lazy_write(p, "abc");
 	lazy_write(p, "");
 	fs::remove(p);
 } 
-#line 257 "index.md"
+#line 74 "index.md"
  {
 	fs::path p { "a.tmp" };
 	lazy_write(p, "");
 	lazy_write(p, "abc");
 	fs::remove(p);
 } 
-#line 266 "index.md"
+#line 83 "index.md"
  {
 	fs::path p { "a.tmp" };
 	lazy_write(p, "abc");
 	lazy_write(p, "ab");
 	fs::remove(p);
 } 
-#line 275 "index.md"
+#line 92 "index.md"
  {
 	fs::path p { "a.tmp" };
 	lazy_write(p, "abc");
 	lazy_write(p, "ad");
 	fs::remove(p);
 } 
-#line 284 "index.md"
+#line 101 "index.md"
  {
 	fs::path p { "a.tmp" };
 	lazy_write(p, "abc");
 	lazy_write(p, "adef");
 	fs::remove(p);
 } 
-#line 64 "index.md"
+#line 14 "index.md"
 ;
 	}
