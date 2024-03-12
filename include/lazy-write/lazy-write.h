@@ -3,7 +3,7 @@
 // globals
 #line 25
 // Lazy_Write prereqs
-#line 53
+#line 51
 #include <memory>
 #include <fstream>
 #include <filesystem>
@@ -12,7 +12,7 @@ namespace fs = std::filesystem;
 #line 26
 class Lazy_Write {
 		// privates
-#line 74
+#line 72
 		std::unique_ptr<std::ifstream> reader_;
 		unsigned count_ { 0 };
 		std::unique_ptr<std::ofstream> writer_;
@@ -21,17 +21,17 @@ class Lazy_Write {
 #line 28
 	public:
 		// publics
-#line 157
+#line 155
 		~Lazy_Write() {
 			// destruct
-#line 166
+#line 164
 			reader_ = nullptr;
 			writer_ = nullptr;
 			fs::path p { path_ };
 			std::error_code err;
 			auto got { fs::file_size(p, err) };
 			// destruct 2
-#line 178
+#line 176
 			if (err) {
 				std::ofstream empty {
 					path_.c_str()
@@ -39,16 +39,16 @@ class Lazy_Write {
 				got = 0;
 			}
 			// destruct 3
-#line 191
+#line 189
 			if (got != count_) {
 				fs::resize_file(p, count_, err);
 			}
-#line 159
+#line 157
 		}
-#line 93
+#line 91
 		Lazy_Write &put(char c) {
 			// put body
-#line 103
+#line 101
 			char got;
 			if (reader_ && reader_->get(got)) {
 				if (got == c) {
@@ -57,10 +57,10 @@ class Lazy_Write {
 				}
 			}
 			reader_ = nullptr;
-#line 119
+#line 117
 			if (! writer_) {
 				// init writer
-#line 129
+#line 127
 				writer_ = std::make_unique<std::ofstream >(
 					path_.c_str(),
 					count_ ?
@@ -73,33 +73,31 @@ class Lazy_Write {
 				if (count_) {
 					writer_->seekp(count_);
 				}
-#line 121
+#line 119
 			}
 			// put body 2
-#line 147
+#line 145
 			if (writer_) {
 				writer_->put(c);
 				++count_;
 			}
-#line 95
+#line 93
 			return *this;
 		}
-#line 64
+#line 62
 		Lazy_Write &operator<<(const std::string &s) {
 			for (const char c : s) { put(c); }
 			return *this;
 		}
 #line 42
-		Lazy_Write(const std::string &p):
-			path_ { p }
-		{
+		explicit Lazy_Write(const std::string &p): path_ { p } {
 			// construct Lazy_Write
-#line 83
+#line 81
 			reader_ = std::make_unique<std::ifstream>(
 				path_.c_str(),
 				std::ios_base::binary | std::ios_base::in
 			);
-#line 46
+#line 44
 		}
 #line 30
 };

@@ -39,9 +39,7 @@ Add path:
 		const std::string path_;
 // ...
 		// publics
-		Lazy_Write(const std::string &p):
-			path_ { p }
-		{
+		explicit Lazy_Write(const std::string &p): path_ { p } {
 			// construct Lazy_Write
 		}
 // ...

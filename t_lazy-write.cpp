@@ -1,10 +1,10 @@
-#line 200 "README.md"
+#line 198 "README.md"
 #include "lazy-write/lazy-write.h"
 #include "solid/require.h"
 // main prereqs
-#line 211
+#line 209
 // unit-tests prereqs
-#line 218
+#line 216
 void lazy_write(fs::path path, const std::string &content) {
 	std::string p { path.string() };
 	{
@@ -17,55 +17,55 @@ void lazy_write(fs::path path, const std::string &content) {
 	std::string got { it { in }, it { } };
 	require(got == content);
 }
-#line 203
+#line 201
 int main() {
 	// unit-tests
-#line 306
+#line 304
 	{ // test 7
 		fs::path p { "a.tmp" };
 		lazy_write(p, "abc");
 		lazy_write(p, "adef");
 		fs::remove(p);
 	}
-#line 294
+#line 292
 	{ // test 6
 		fs::path p { "a.tmp" };
 		lazy_write(p, "abc");
 		lazy_write(p, "ad");
 		fs::remove(p);
 	}
-#line 282
+#line 280
 	{ // test 5
 		fs::path p { "a.tmp" };
 		lazy_write(p, "abc");
 		lazy_write(p, "ab");
 		fs::remove(p);
 	}
-#line 270
+#line 268
 	{ // test 4
 		fs::path p { "a.tmp" };
 		lazy_write(p, "");
 		lazy_write(p, "abc");
 		fs::remove(p);
 	}
-#line 258
+#line 256
 	{ // test 3
 		fs::path p { "a.tmp" };
 		lazy_write(p, "abc");
 		lazy_write(p, "");
 		fs::remove(p);
 	}
-#line 247
+#line 245
 	{ // test 2
 		fs::path p { "a.tmp" };
 		lazy_write(p, "abc");
 		fs::remove(p);
 	}
-#line 236
+#line 234
 	{ // test 1
 		fs::path p { "a.tmp" };
 		lazy_write(p, "");
 		fs::remove(p);
 	}
-#line 205
+#line 203
 }
