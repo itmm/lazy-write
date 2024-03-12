@@ -1,4 +1,3 @@
-*.o
-*.tmp
-lazy-write
+t_lazy-write
+mdp.run
 

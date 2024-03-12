@@ -1,5 +1,3 @@
-
-#line 12 "lazy.md"
-
-	#define lw_IMPL
-	#include "lazy-write.h"
+#line 16 "README.md"
+#define lw_IMPL
+#include "lazy-write/lazy-write.h"

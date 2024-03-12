@@ -1,36 +1,23 @@
-MDs = $(shell hx-srcs.sh)
-GENs = $(shell hx-files.sh $(MDs))
-CXXs = $(filter %.cpp, $(GENs))
-OBJs = $(CXXs:.cpp=.o)
 
-.PHONY: clean test
+.PHONY: test clean
 
-hx_run: $(MDs)
-	@echo "HX"
-	@hx
-	@date >hx_run
-	@make --no-print-directory test
+CXXFLAGS += -Wall -std=c++20 -I./include
 
-test: lazy-write
-	@echo "TEST"
-	@./lazy-write
+APP = t_lazy-write
+SOURCES = lazy-write.cpp $(APP).cpp
+HEADER = include/lazy-write/lazy-write.h
+MDP_RUN = mdp.run
+
+test: 
+	$(MAKE) $(MDP_RUN)
+	./$(APP)
+
+mdp.run: README.md
+	mdp $^ && date >$@ && $(MAKE) $(APP)
+
+$(APP): $(SOURCES) $(HEADER)
+	$(CXX) $(CXXFLAGS) $(SOURCES) -o $@
 
 clean:
-	@echo "RM"
-	@rm -f hx_run lazy-write $(OBJs) $(GENs)
+	rm -f $(APP) $(MDP_RUN) $(SOURCES) $(HEADER)
 
-CXXFLAGS += -Wall -std=c++17
-
-lazy-write: $(OBJs)
-	@echo "LD $@"
-	@$(CXX) $(CXXFLAGS) $^ -lstdc++fs -o $@
-
-lazy-write.cpp: lazy-write.h
-	@touch $@
-
-main.cpp: lazy-write.h
-	@touch $@
-
-%.o: %.cpp
-	@echo "  C++ $@"
-	@$(CXX) $(CXXFLAGS) -c $^ -o $@
