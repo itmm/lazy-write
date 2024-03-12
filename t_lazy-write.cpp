@@ -1,6 +1,6 @@
 #line 200 "README.md"
 #include "lazy-write/lazy-write.h"
-#include <cassert>
+#include "solid/require.h"
 // main prereqs
 #line 211
 // unit-tests prereqs
@@ -11,11 +11,11 @@ void lazy_write(fs::path path, const std::string &content) {
 		Lazy_Write lw { p };
 		lw << content;
 	}
-	assert(fs::file_size(path) == content.size());
+	require(fs::file_size(path) == content.size());
 	std::ifstream in { p };
 	using it = std::istreambuf_iterator<char>;
 	std::string got { it { in }, it { } };
-	assert(got == content);
+	require(got == content);
 }
 #line 203
 int main() {

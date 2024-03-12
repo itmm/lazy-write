@@ -1,0 +1,3 @@
+[submodule "solid-require"]
+	path = solid-require
+	url = https://github.com/itmm/solid-require.git
