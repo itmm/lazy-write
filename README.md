@@ -20,10 +20,13 @@ Implementation in `lazy-write.cpp` via
 Define class in `include/lazy-write/lazy-write.h`:
 
 ```c++
+#pragma once
+
+#include <ostream>
 // ...
 // globals
 // Lazy_Write prereqs
-class Lazy_Write {
+class Lazy_Write: private std::streambuf, public std::ostream {
 		// privates
 	public:
 		// publics
@@ -39,7 +42,7 @@ Add path:
 		const std::string path_;
 // ...
 		// publics
-		explicit Lazy_Write(const std::string &p): path_ { p } {
+		explicit Lazy_Write(const std::string &p): std::ostream { this }, path_ { p } {
 			// construct Lazy_Write
 		}
 // ...
@@ -53,16 +56,6 @@ Add path:
 #include <filesystem>
 #include <streambuf>
 namespace fs = std::filesystem;
-// ...
-```
-
-```c++
-// ...
-		// publics
-		Lazy_Write &operator<<(const std::string &s) {
-			for (const char c : s) { put(c); }
-			return *this;
-		}
 // ...
 ```
 
@@ -87,10 +80,11 @@ namespace fs = std::filesystem;
 
 ```c++
 // ...
-		// publics
-		Lazy_Write &put(char c) {
+		const std::string path_;
+
+		int overflow(int ch) override {
 			// put body
-			return *this;
+			return 0;
 		}
 // ...
 ```
@@ -100,9 +94,9 @@ namespace fs = std::filesystem;
 			// put body
 			char got;
 			if (reader_ && reader_->get(got)) {
-				if (got == c) {
+				if (got == ch) {
 					++count_;
-					return *this;
+					return 0;
 				}
 			}
 			reader_ = nullptr;
@@ -143,7 +137,7 @@ namespace fs = std::filesystem;
 // ...
 			// put body 2
 			if (writer_) {
-				writer_->put(c);
+				writer_->put(ch);
 				++count_;
 			}
 // ...
