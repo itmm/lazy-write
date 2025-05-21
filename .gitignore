@@ -1,3 +1,4 @@
 t_lazy-write
 mdp.run
-
+*.a
+*.o

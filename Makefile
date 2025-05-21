@@ -1,25 +1,53 @@
+.PHONY: all tests clean solid-require
 
-.PHONY: test clean
+CXXFLAGS += -O3 -Wall -Wextra -Wpedantic -Werror -std=c++20 \
+	-I./include -I./solid-require/include
 
-CXXFLAGS += -Wall -std=c++20 -I./include -I./solid-require/include
+T_APP = t_lazy-write
+T_SOURCES = $(T_APP).cpp
 
-APP = t_lazy-write
-SOURCES = lazy-write.cpp $(APP).cpp
-OTHER_SOURCES = solid-require/solid/require.cpp
-HEADER = include/lazy-write/lazy-write.h
-OTHER_HEADER = solid-require/include/solid/require.h
+LIB = liblazywrite.a
+L_SOURCES = lazy-write.cpp
+L_OBJECTS = $(L_SOURCES:.cpp=.o)
+L_HEADER = include/lazy-write/lazy-write.h
+
+LIBS = $(LIB) solid-require/librequire.a
+LIBS_HEADER = solid-require/include/solid/require.h
+
 MDP_RUN = mdp.run
 
-test: 
-	$(MAKE) $(MDP_RUN)
-	./$(APP)
+all: $(MDP_RUN) solid-require
+	@$(MAKE) --no-print-directory tests
 
-mdp.run: README.md
-	mdp $^ && date >$@ && $(MAKE) $(APP)
+solid-require:
+	@echo building solid-require
+	@$(MAKE) --no-print-directory -C solid-require
 
-$(APP): $(SOURCES) $(OTHER_SOURCES) $(HEADER) $(OTHER_HEADER)
-	$(CXX) $(CXXFLAGS) $(SOURCES) $(OTHER_SOURCES) -o $@
+$(MDP_RUN): $(wildcard *.md)
+	@echo extracting source code
+	@[ -x "$$(command -v mdp)" ] || echo "mdp not installed" 1>&2
+	@[ -x "$$(command -v mdp)" ] && mdp README.md
+	@date >$@
+
+%.o:%.cpp
+	@echo "  buliding" $@
+	@$(CXX) $(CXXFLAGS) -c $< -o $@
+
+tests: $(T_APP)
+	@echo running unit-tests
+	@./$(T_APP)
+
+$(T_APP): $(T_SOURCES) $(LIBS) $(LIBS_HEADER)
+	@echo building $@
+	@$(CXX) $(CXXFLAGS) $(T_SOURCES) $(LIBS) -o $@
+
+$(LIB): $(L_OBJECTS) $(L_HEADER)
+	@echo building $@
+	@$(AR) -cr $@ $^
 
 clean:
-	rm -f $(APP) $(MDP_RUN) $(SOURCES) $(HEADER)
-
+	@echo remove temporaries
+	@rm -f $(T_APP) $(MDP_RUN)
+	@$(MAKE) --no-print-directory -C solid-require clean
+	@[ -x "$$(command -v mdp)" ] && rm -f $(T_SOURCES) $(L_HEADER) \
+		$(L_SOURCES) $(L_OBJECTS)
