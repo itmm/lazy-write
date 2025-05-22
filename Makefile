@@ -37,13 +37,13 @@ tests: $(T_APP)
 	@echo running unit-tests
 	@./$(T_APP)
 
-$(T_APP): $(T_SOURCES) $(LIBS) $(LIBS_HEADER)
+$(T_APP): $(T_SOURCES) $(LIBS) $(LIBS_HEADER) $(T_HEADER) $(L_HEADER)
 	@echo building $@
 	@$(CXX) $(CXXFLAGS) $(T_SOURCES) $(LIBS) -o $@
 
 $(LIB): $(L_OBJECTS) $(L_HEADER)
 	@echo building $@
-	@$(AR) -cr $@ $^
+	@$(AR) -cr $@ $(L_OBJECTS)
 
 clean:
 	@echo remove temporaries
