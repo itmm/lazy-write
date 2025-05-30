@@ -1,3 +1,4 @@
+<!-- vim: set spelllang=en noexpandtab: -->
 # Only write into a file if it is changing
 
 * improves working with `make`
@@ -9,8 +10,7 @@ Header is written to `include/lazy-write/lazy-write.h`:
 // globals
 ```
 
-Implementation in `lazy-write.cpp` via
-`#define` in header:
+Implementation in `lazy-write.cpp` via `#define` in header:
 
 ```c++
 #define lw_IMPL
@@ -20,6 +20,7 @@ Implementation in `lazy-write.cpp` via
 Define class in `include/lazy-write/lazy-write.h`:
 
 ```c++
+// ...
 #pragma once
 
 #include <ostream>
@@ -42,7 +43,9 @@ Add path:
 		const std::string path_;
 // ...
 		// publics
-		explicit Lazy_Write(const std::string &p): std::ostream { this }, path_ { p } {
+		explicit Lazy_Write(const std::string &p):
+			std::ostream { this }, path_ { p }
+		{
 			// construct Lazy_Write
 		}
 // ...
